@@ -29,6 +29,12 @@
                    :from (uid ws)
                    :data (msg "data")}))
 
+(defn handle-dead [msg ws]
+  (info (format "%s -> DEAD (killed by %s)" (uid ws) ((msg "data") "by")))
+  (send-others ws {:id "DEAD"
+                   :from (uid ws)
+                   :data (msg "data")}))
+
 (defn on-open [ws]
   (swap! players #(conj % ws))
   (.data ws "ip" (ipaddr ws))
@@ -45,7 +51,8 @@
   (let [msg (decode json)
         msg-type (msg "id")]
     (cond
-      (= msg-type "UPDATE") (handle-update msg ws))))
+      (= msg-type "UPDATE") (handle-update msg ws),
+      (= msg-type "DEAD") (handle-dead msg ws))))
 
 (defn -main [& m]
   (def server (WebServers/createWebServer (Integer/parseInt (System/getenv "PORT"))))
