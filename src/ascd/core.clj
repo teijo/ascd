@@ -1,6 +1,7 @@
 (ns ascd.core
   (:use [cheshire.core]
         [clojure.tools.logging])
+  (:use [clojure.set])
   (:import [org.webbitserver
             WebServer
             WebServers
@@ -20,32 +21,36 @@
   (-> (.httpRequest ws) .remoteAddress .getPort))
 
 (defn send-others [self msg]
-  (let [json (encode msg)]
-    (doseq [ws (disj @players self)]
-      (.send ws json))))
+  (let [json (encode msg)
+        idx (index @players [:uid])]
+    (doseq [player (difference @players (idx {:uid (uid self)}))]
+      (.send (:socket player) json))))
 
 (defn handle-update [msg ws]
   (send-others ws {:id "UPDATE"
+                   :channel (msg "channel")
                    :from (uid ws)
                    :data (msg "data")}))
 
 (defn handle-dead [msg ws]
   (info (format "%s -> DEAD (killed by %s)" (uid ws) ((msg "data") "by")))
   (send-others ws {:id "DEAD"
+                   :channel 0
                    :from (uid ws)
                    :data (msg "data")}))
 
 (defn on-open [ws]
-  (swap! players #(conj % ws))
   (.data ws "ip" (ipaddr ws))
   (.data ws "port" (port ws))
+  (swap! players #(conj % {:uid (uid ws) :socket ws}))
   (info (format "%s -> JOIN" (uid ws))))
 
 (defn on-close [ws]
   (info (format "%s -> LEAVE" (uid ws)))
   (send-others ws {:id "LEAVE"
+                   :channel 0
                    :from (uid ws)})
-  (swap! players #(disj % ws)))
+  (swap! players #(difference % ((index % [:uid]) {:uid (uid ws)}))))
 
 (defn on-message [ws json]
   (let [msg (decode json)
