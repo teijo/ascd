@@ -41,14 +41,8 @@
 (defn update-ship-position [ship]
   (update-in ship [:position] + (:velocity ship)))
 
-(defn wrap-value [boxing value]
-  (let [nonzero (if (< value 0)
-                  (+ value boxing)
-                  value)]
-    (mod nonzero boxing)))
-
 (defn wrap-vector [boxing v]
-  (map #(apply wrap-value %) (map vector boxing v)))
+  (map #(apply mod %) (map vector v boxing)))
 
 (defn update-shot [shot]
   (update-in shot [:position] + (:dir shot)))

@@ -51,14 +51,5 @@
 (deftest test-negative-outside-boundaries
   (is (out-of-bounds [1 1] [-1 1])))
 
-(deftest test-wrap-negative-integer
-  (is (= 1 (wrap-value 2 -1))))
-
-(deftest test-wrap-positive-integer
-  (is (= 1 (wrap-value 2 3))))
-
-(deftest test-wrap-not
-  (is (= 1 (wrap-value 2 1))))
-
 (deftest test-wrap-vector
   (is (= (vec [1 0]) (wrap-vector (vec [2 2]) (vec [-1 2])))))
