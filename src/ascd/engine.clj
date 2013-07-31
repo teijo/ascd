@@ -47,24 +47,24 @@
     (> (first position) (first area))
     (> (second position) (second area))))
 
-(defn update-ship-position [ship]
+(defn update-position [ship]
   (let [updated (update-in ship [:position] + (:velocity ship))]
     (if (out-of-bounds (:window-dimensions SETTINGS) (:position updated))
       (update-in updated [:position] := (wrap-vector (:window-dimensions SETTINGS) (:position updated)))
       updated)))
 
 (defn update-distance [shot]
-  (update-in shot [:distance] + (length (:dir shot))))
+  (update-in shot [:distance] + (length (:velocity shot))))
 
-(defn position [shot]
-  (update-in shot [:position] + (:dir shot)))
-
-(defn update-shot [shot]
-  (let [updated (position (update-distance shot))]))
+(defn move-shot [shot]
+  (let [updated (update-position (update-distance shot))]
+    (if (> (:distance updated) (:max-distance updated))
+      (update-in updated [:removed] := true)
+      updated)))
 
 (defn update-shots [shots]
-  (map update-shot (filter #(not (:removed %)) shots)))
+  (map move-shot (filter #(not (:removed %)) shots)))
 
 (defn update-ship [ship]
-  (let [moved (update-ship-position ship)]
+  (let [moved (update-position ship)]
     (update-in moved [:shots] := (update-shots (:shots moved)))))
