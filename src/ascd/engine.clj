@@ -68,3 +68,7 @@
 (defn update-ship [ship]
   (let [moved (update-position ship)]
     (update-in moved [:shots] := (update-shots (:shots moved)))))
+
+(defn player-hit? [ship shot]
+  (< (length (- (:position shot) (:position ship)))
+    (:diameter ship)))

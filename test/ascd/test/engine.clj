@@ -68,3 +68,13 @@
                                    :velocity (vec [-790 610])})]
         (and (= (:position moved-shot) (vec [10, 10]))
           (= (:removed moved-shot) true)))))
+
+(deftest test-hit
+  (is (player-hit?
+        {:position (vec [0 0]) :diameter 10}
+        {:position (vec [9 0])})))
+
+(deftest test-miss
+  (is (not (player-hit?
+             {:position (vec [0 0]) :diameter 10}
+             {:position (vec [9.9 9.9])}))))
