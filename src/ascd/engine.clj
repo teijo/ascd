@@ -72,3 +72,7 @@
 (defn player-hit? [ship shot]
   (< (length (- (:position shot) (:position ship)))
     (:diameter ship)))
+
+(defn collect-hits [ship shots]
+  (map #(update-in % [:hit] := (:id ship))
+    (filter #(player-hit? ship %) shots)))

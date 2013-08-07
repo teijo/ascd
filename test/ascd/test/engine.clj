@@ -17,7 +17,7 @@
               :dir (vec [0 1])
               :removed false })
    :energy 10
-   :diameter { :value 10 }
+   :diameter 10
    :velocity (vec [1 0])
    :heading (vec [1 0])
    :position (vec [4 4])
@@ -78,3 +78,9 @@
   (is (not (player-hit?
              {:position (vec [0 0]) :diameter 10}
              {:position (vec [9.9 9.9])}))))
+
+(deftest test-collect-hits
+  (is (= [{:position (:position ship) :hit (:id ship)}]
+        (collect-hits ship
+        [{:position (:position ship)}
+         {:position (+ (:position ship) (vec [10 10]))}]))))
