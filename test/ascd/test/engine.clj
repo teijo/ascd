@@ -84,3 +84,6 @@
         (collect-hits ship
         [{:position (:position ship)}
          {:position (+ (:position ship) (vec [10 10]))}]))))
+
+(deftest test-inflict-damage
+  (is (= {:energy 5} (inflict-damage {:energy 10} 5))))

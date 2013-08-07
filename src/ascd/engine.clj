@@ -76,3 +76,6 @@
 (defn collect-hits [ship shots]
   (map #(update-in % [:hit] := (:id ship))
     (filter #(player-hit? ship %) shots)))
+
+(defn inflict-damage [ship damage]
+  (update-in ship [:energy] - damage))
