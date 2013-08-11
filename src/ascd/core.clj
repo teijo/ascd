@@ -11,6 +11,17 @@
 
 (def players (atom #{}))
 
+(defn room-active [room-id]
+  (< 0 (count @players)))
+
+(defn start-room []
+  (info "Engine started")
+  (future (loop []
+            (info "Tick")
+            (Thread/sleep 1000)
+            (when (room-active 1) (recur)))
+    (info "Engine done")))
+
 (defn uid [ws]
   (str (.data ws "ip") ":" (.data ws "port")))
 
@@ -42,6 +53,8 @@
 (defn on-open [ws]
   (.data ws "ip" (ipaddr ws))
   (.data ws "port" (port ws))
+  (if (not (room-active 1))
+    (start-room))
   (swap! players #(conj % {:uid (uid ws) :socket ws}))
   (info (format "%s -> JOIN" (uid ws))))
 
