@@ -79,3 +79,22 @@
 
 (defn inflict-damage [ship damage]
   (update-in ship [:energy] - damage))
+
+(defn filter-out-by-id [ships ship]
+  (filter #(not= (:id ship) (:id %)) ships))
+
+(defn collect-all-hits [ships]
+  (map (fn [player]
+         (map (fn [enemy]
+                (collect-hits player (:shots enemy)))
+           (filter-out-by-id ships player))
+         ) ships))
+
+(defn update-damage [ships hits]
+  (map (fn [ship] (inflict-damage ship (length (filter #(= (:hit %) (:id ship)))))) ships))
+
+(defn next-state [state]
+  (let [moved-ships (map update-ship (:ships state))
+        hits (collect-all-hits moved-ships)
+        damaged-ships (update-damage moved-ships hits)]
+    {:ships damaged-ships}))

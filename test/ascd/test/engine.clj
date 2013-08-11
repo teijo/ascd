@@ -87,3 +87,6 @@
 
 (deftest test-inflict-damage
   (is (= {:energy 5} (inflict-damage {:energy 10} 5))))
+
+(deftest test-next-state
+  (is (= {:ships [ship]}) (next-state {:ships [ship]})))
