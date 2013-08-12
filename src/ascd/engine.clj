@@ -91,7 +91,7 @@
          ) ships))
 
 (defn update-damage [ships hits]
-  (map (fn [ship] (inflict-damage ship (length (filter #(= (:hit %) (:id ship)))))) ships))
+  (map (fn [ship] (inflict-damage ship (length (filter #(= (:hit %) (:id ship)) hits)))) ships))
 
 (defn next-state [state]
   (let [moved-ships (map update-ship (:ships state))
