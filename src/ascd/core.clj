@@ -1,5 +1,6 @@
 (ns ascd.core
   (:use [cheshire.core]
+        [ascd.engine]
         [clojure.tools.logging])
   (:use [clojure.set])
   (:import [org.webbitserver
@@ -15,12 +16,15 @@
   (< 0 (count @players)))
 
 (defn start-room []
-  (info "Engine started")
-  (future (loop []
-            (info "Tick")
-            (Thread/sleep 1000)
-            (when (room-active 1) (recur)))
-    (info "Engine done")))
+  (let [ghost (spawn-ship)]
+    (info "Engine started")
+    (future (loop [current-state {:ships [ghost]}]
+              (info "Tick")
+              (println (first (:ships current-state)))
+              (Thread/sleep 1000)
+              (when (room-active 1)
+                (recur (next-state current-state))))
+      (info "Engine done"))))
 
 (defn uid [ws]
   (str (.data ws "ip") ":" (.data ws "port")))

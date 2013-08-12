@@ -38,6 +38,17 @@
                      :step -4 }
     })
 
+(defn spawn-ship []
+  {:id 1
+   :player { :name 'Name }
+   :shots []
+   :energy 10
+   :diameter 10
+   :velocity (vec [-0.5 0.25])
+   :heading (vec [1.0 0.5])
+   :position (/ (vec (:window-dimensions SETTINGS)) 2)
+   })
+
 (defn wrap-vector [boxing v]
   (map #(apply mod %) (map vector v boxing)))
 
