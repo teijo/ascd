@@ -40,7 +40,7 @@
 
 (defn spawn-ship []
   {:id 1
-   :player { :name 'Name }
+   :name 'Name
    :shots []
    :energy 10
    :diameter 10

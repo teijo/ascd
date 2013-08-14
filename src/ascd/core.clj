@@ -15,17 +15,6 @@
 (defn room-active [room-id]
   (< 0 (count @players)))
 
-(defn start-room []
-  (let [ghost (spawn-ship)]
-    (info "Engine started")
-    (future (loop [current-state {:ships [ghost]}]
-              (info "Tick")
-              (println (first (:ships current-state)))
-              (Thread/sleep 1000)
-              (when (room-active 1)
-                (recur (next-state current-state))))
-      (info "Engine done"))))
-
 (defn uid [ws]
   (str (.data ws "ip") ":" (.data ws "port")))
 
@@ -35,11 +24,30 @@
 (defn port [ws]
   (-> (.httpRequest ws) .remoteAddress .getPort))
 
-(defn send-others [self msg]
-  (let [json (encode msg)
-        idx (index @players [:uid])]
-    (doseq [player (difference @players (idx {:uid (uid self)}))]
+(defn send-to [receivers msg]
+  (let [json (encode msg)]
+    (doseq [player receivers]
       (.send (:socket player) json))))
+
+(defn state-to-message [ship-state]
+  {:id "UPDATE"
+   :channel 0
+   :from 'server
+   :data ship-state})
+
+(defn start-room []
+  (let [ghost (spawn-ship)]
+    (info "Engine started")
+    (future (loop [current-state {:ships [ghost]}]
+              (send-to @players (state-to-message (first (:ships current-state))))
+              (Thread/sleep 10)
+              (when (room-active 1)
+                (recur (next-state current-state))))
+      (info "Engine done"))))
+
+(defn send-others [self msg]
+  (let [idx (index @players [:uid])]
+    (send-to (difference @players (idx {:uid (uid self)})) msg)))
 
 (defn handle-update [msg ws]
   (send-others ws {:id "UPDATE"
