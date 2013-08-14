@@ -40,6 +40,7 @@
 
 (defn spawn-ship []
   {:id 1
+   :dirty true
    :name 'Name
    :shots []
    :energy 10
@@ -48,6 +49,9 @@
    :heading (vec [1.0 0.5])
    :position (/ (vec (:window-dimensions SETTINGS)) 2)
    })
+
+(defn update-all [object key-values]
+  (reduce #(update-in % [(second %2)] (first %2) (last %2)) object key-values))
 
 (defn wrap-vector [boxing v]
   (map #(apply mod %) (map vector v boxing)))
@@ -89,7 +93,8 @@
     (filter #(player-hit? ship %) shots)))
 
 (defn inflict-damage [ship damage]
-  (update-in ship [:energy] - damage))
+  (update-all ship [[- :energy damage]
+                    [(some-fn true?) :dirty (> damage 0)]]))
 
 (defn filter-out-by-id [ships ship]
   (filter #(not= (:id ship) (:id %)) ships))

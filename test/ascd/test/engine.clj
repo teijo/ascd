@@ -86,7 +86,7 @@
          {:position (+ (:position ship) (vec [10 10]))}]))))
 
 (deftest test-inflict-damage
-  (is (= {:energy 5} (inflict-damage {:energy 10} 5))))
+  (is (= {:dirty true :energy 5} (inflict-damage {:dirty false :energy 10} 5))))
 
 (deftest test-next-state
   (is (= {:ships [ship]}) (next-state {:ships [ship]})))

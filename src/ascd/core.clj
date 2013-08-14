@@ -35,14 +35,18 @@
    :from 'server
    :data ship-state})
 
+(defn mark-clean [state]
+  {:ships [(map #(update-in % [:dirty] := false) (:ships state))]})
+
 (defn start-room []
   (let [ghost (spawn-ship)]
     (info "Engine started")
     (future (loop [current-state {:ships [ghost]}]
-              (send-to @players (state-to-message (first (:ships current-state))))
-              (Thread/sleep 10)
+              (doseq [ship (filter #(true? (:dirty %)) (:ships current-state))]
+                (send-to @players (state-to-message ship)))
+              (Thread/sleep 1000)
               (when (room-active 1)
-                (recur (next-state current-state))))
+                (recur (next-state (mark-clean current-state)))))
       (info "Engine done"))))
 
 (defn send-others [self msg]
